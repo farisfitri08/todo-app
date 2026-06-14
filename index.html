@@ -1,0 +1,72 @@
+<h1>PRO To-Do</h1>
+
+<input id="taskInput" placeholder="Enter task..." />
+<button id="addBtn">Add</button>
+
+<ul id="taskList"></ul>
+<script>
+let input = document.getElementById("taskInput");
+let addBtn = document.getElementById("addBtn");
+let list = document.getElementById("taskList");
+
+// load from storage
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+renderTasks();
+
+function renderTasks() {
+  list.innerHTML = "";
+
+  tasks.forEach((task, index) => {
+    let li = document.createElement("li");
+
+    li.textContent = task.text;
+
+    // strike if done
+    if (task.done) {
+      li.style.textDecoration = "line-through";
+    }
+
+    // toggle done
+    li.addEventListener("click", function () {
+      tasks[index].done = !tasks[index].done;
+      saveTasks();
+      renderTasks();
+    });
+
+    // delete button
+    let delBtn = document.createElement("button");
+    delBtn.textContent = "X";
+
+    delBtn.addEventListener("click", function (e) {
+      e.stopPropagation(); // IMPORTANT 🔥
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    });
+
+    li.appendChild(delBtn);
+    list.appendChild(li);
+  });
+}
+
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+
+addBtn.addEventListener("click", function () {
+  let taskText = input.value;
+
+  if (taskText === "") return;
+
+  tasks.push({
+    text: taskText,
+    done: false
+  });
+
+  input.value = "";
+
+  saveTasks();
+  renderTasks();
+});
+</script>
